@@ -1,10 +1,28 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useTheme } from './ThemeProvider';
 
 // 这里的 export default 非常关键！没有 default 就会报你那个错误
 export default function ThemeToggleBlock() {
   const { isDark, toggleTheme } = useTheme();
+  // 背景特效开关（默认开）。关掉后由 globals.css 的 html.fx-off 规则隐藏所有粒子层。
+  const [fxOn, setFxOn] = useState(true);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setFxOn(localStorage.getItem('fx') !== 'off');
+    setReady(true);
+  }, []);
+
+  const toggleFx = (e: React.MouseEvent) => {
+    // 不要让点击冒泡到卡片本身的「切换主题」
+    e.stopPropagation();
+    const next = !fxOn;
+    setFxOn(next);
+    localStorage.setItem('fx', next ? 'on' : 'off');
+    document.documentElement.classList.toggle('fx-off', !next);
+  };
 
   return (
     <div
@@ -33,6 +51,21 @@ export default function ThemeToggleBlock() {
            <p className={`text-sm font-medium mt-1 transition-colors duration-500 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
              {isDark ? '流萤飞舞的深空' : '落樱漫舞的清晨'}
            </p>
+
+           {/* 背景特效开关：嫌卡的话点一下关掉所有粒子/弹幕/点击特效 */}
+           <button
+             type="button"
+             onClick={toggleFx}
+             title="关掉背景粒子、弹幕和点击特效，能明显更流畅"
+             className={`mt-3 inline-flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full border transition-colors duration-300
+               ${isDark
+                 ? 'border-slate-500/60 text-slate-300 hover:border-indigo-400 hover:text-indigo-300'
+                 : 'border-slate-300 text-slate-600 hover:border-indigo-500 hover:text-indigo-600'
+               }`}
+           >
+             <span className={`inline-block w-2 h-2 rounded-full ${ready && fxOn ? 'bg-emerald-400' : 'bg-slate-400'}`}></span>
+             背景特效 {ready ? (fxOn ? '开' : '关') : '…'}
+           </button>
        </div>
     </div>
   );

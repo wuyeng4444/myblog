@@ -15,11 +15,18 @@ interface Firefly {
   floatPath: string;       // 随机分配飞行轨迹
 }
 
+// 性能说明（相比原版做了三处改动）：
+// 1. 数量 50 → 16：每只萤火虫是一层独立合成，50 只在高分屏上很吃 GPU。
+// 2. 呼吸动画不再动 box-shadow：box-shadow 是绘制属性，动画它等于每帧重绘光晕。
+//    改成只在透明度/缩放上做呼吸，光晕用固定的 box-shadow（只栅格化一次）。
+// 3. 去掉容器上的 mix-blend-screen：全屏混合模式每帧都要重新混合整块画面。
+const FIREFLY_COUNT = 16;
+
 export default function Fireflies() {
   const [flies, setFlies] = useState<Firefly[]>([]);
 
   useEffect(() => {
-    const generated: Firefly[] = Array.from({ length: 50 }).map((_, i) => ({
+    const generated: Firefly[] = Array.from({ length: FIREFLY_COUNT }).map((_, i) => ({
       id: i,
       // 初始出生点
       top: `${Math.random() * 100}%`,
@@ -41,20 +48,19 @@ export default function Fireflies() {
   }, []);
 
   return (
-    <div className="fixed inset-0 w-full h-full pointer-events-none z-10 overflow-hidden mix-blend-screen">
+    <div className="fixed inset-0 w-full h-full pointer-events-none z-10 overflow-hidden">
 
       {/* 动画引擎 */}
       <style>{`
-        /* 内层：纯粹的光芒呼吸闪烁 */
+        /* 内层：纯透明度 + 缩放的呼吸（不动 box-shadow，避免每帧重绘光晕） */
         @keyframes fireflyBreathe {
-          0%, 100% { 
-            opacity: 0; 
-            transform: scale(0.3);
+          0%, 100% {
+            opacity: 0;
+            transform: scale(0.4);
           }
-          50% { 
-            opacity: 1; 
-            transform: scale(1.2); 
-            box-shadow: 0 0 10px 3px rgba(100, 255, 150, 0.8), 0 0 20px 6px rgba(50, 255, 100, 0.4);
+          50% {
+            opacity: 1;
+            transform: scale(1.15);
           }
         }
 
@@ -100,6 +106,8 @@ export default function Fireflies() {
               width: `${fly.size}px`,
               height: `${fly.size}px`,
               backgroundColor: 'rgba(200, 255, 200, 0.9)',
+              // 固定光晕，只栅格化一次
+              boxShadow: '0 0 10px 3px rgba(100, 255, 150, 0.7), 0 0 20px 6px rgba(50, 255, 100, 0.35)',
               animation: `fireflyBreathe ${fly.breatheDuration}s ease-in-out infinite`,
               animationDelay: `${fly.breatheDelay}s`,
             }}

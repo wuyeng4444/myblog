@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useRef } from 'react';
 
+// 性能说明：原版在挂载后立刻启动 requestAnimationFrame 并永久循环，
+// 即使一个涟漪都没有，也在以 60fps 全屏 clearRect + 重绘整块 canvas。
+// 现在改成「按需启动」：只有点击产生涟漪时才跑循环，涟漪消散后自动停下。
 export default function ClickEffect() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -11,8 +14,12 @@ export default function ClickEffect() {
     if (!ctx) return;
 
     let ripples: any[] = [];
+    let rafId = 0;
+    let running = false;
 
     const resize = () => {
+      // 尺寸没变就不重置 canvas（重置会清空画布并重新分配显存）
+      if (canvas.width === window.innerWidth && canvas.height === window.innerHeight) return;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
@@ -60,14 +67,15 @@ export default function ClickEffect() {
       }
     }
 
-    const handleClick = (e: MouseEvent) => {
-      ripples.push(new Ripple(e.clientX, e.clientY));
-    };
-
-    window.addEventListener('click', handleClick);
-
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 没有涟漪了就停掉循环，等待下一次点击再启动
+      if (ripples.length === 0) {
+        running = false;
+        rafId = 0;
+        return;
+      }
 
       // 增加全局模糊，让涟漪更有“云端”质感
       ctx.shadowBlur = 15;
@@ -81,13 +89,23 @@ export default function ClickEffect() {
           i--;
         }
       }
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
     };
-    animate();
+
+    const handleClick = (e: MouseEvent) => {
+      ripples.push(new Ripple(e.clientX, e.clientY));
+      if (!running) {
+        running = true;
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+
+    window.addEventListener('click', handleClick);
 
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('click', handleClick);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 

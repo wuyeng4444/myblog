@@ -95,3 +95,26 @@ input[type=range]::-webkit-slider-thumb {
   scrollbar-width: thin;
   scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
 }
+/* ========================================================
+   7. 性能开关（.fx-off）
+   背景粒子、弹幕、点击特效、渐变流动全部停掉。
+   由首页「日夜」卡片里的「背景特效」开关控制，状态存在 localStorage.fx。
+   ======================================================== */
+html.fx-off .fx-layer {
+  display: none !important;
+}
+
+/* 关掉特效时连渐变流动也停掉，背景保持静止 */
+html.fx-off .bg-drift {
+  animation: none !important;
+}
+
+/* 尊重系统的「减少动态效果」设置：自动停掉粒子层 */
+@media (prefers-reduced-motion: reduce) {
+  .fx-layer {
+    display: none !important;
+  }
+  .bg-drift {
+    animation: none !important;
+  }
+}

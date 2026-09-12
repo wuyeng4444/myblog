@@ -19,7 +19,9 @@ export default function DanmakuBackground() {
     if (list.length === 0) return;
 
     const generatedDanmakus: DanmakuItem[] = [];
-    const count = 15;
+    // 性能说明：条数 15 → 8。原动画同时在改 right 属性，那是布局属性，
+    // 每帧都会触发重排；现在只动 transform，交给合成器处理。
+    const count = 8;
 
     for (let i = 0; i < count; i++) {
       generatedDanmakus.push({
@@ -45,7 +47,7 @@ export default function DanmakuBackground() {
           className="absolute whitespace-nowrap text-white/30 dark:text-white/10 font-bold text-lg tracking-wider select-none"
           style={{
             top: `${item.top}%`,
-            right: '-100%',
+            left: 0,
             animation: `float-left ${item.duration}s linear ${item.delay}s infinite`,
           }}
         >
@@ -56,14 +58,8 @@ export default function DanmakuBackground() {
       <style dangerouslySetInnerHTML={{
         __html: `
         @keyframes float-left {
-          0% {
-            right: -100%;
-            transform: translateX(100%);
-          }
-          100% {
-            right: 100%;
-            transform: translateX(-100%);
-          }
+          0%   { transform: translateX(100vw); }
+          100% { transform: translateX(-100vw); }
         }
       `}} />
     </div>

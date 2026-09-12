@@ -56,6 +56,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 if (sessionStorage.getItem('hasSeenSplash') === 'true') {
                   document.documentElement.classList.add('splash-seen');
                 }
+                if (localStorage.getItem('fx') === 'off') {
+                  document.documentElement.classList.add('fx-off');
+                }
               } catch (e) {}
             `
           }}
@@ -71,14 +74,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div id="app-mount-root" className="flex-1 flex flex-col transition-opacity duration-1000">
               <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
                 {!siteConfig.useGradient && <BackgroundSlider />}
-                <div className="absolute inset-0 z-[-9] bg-white/30 dark:bg-slate-900/40 backdrop-blur-md transition-colors duration-1000"></div>
+                {/* 性能：这里原本是 backdrop-blur-md 全屏模糊——会在每帧把整个视口重新模糊一遍。
+                    去掉它，改用纯半透明色，视觉几乎无差别但省掉一整屏的模糊计算。 */}
+                <div className="absolute inset-0 z-[-9] bg-white/30 dark:bg-slate-900/40 transition-colors duration-1000"></div>
 
+                {/* 性能：渐变层改为「放大 + transform 旋转」驱动，
+                    不再动画 background-position（那是每帧全屏重绘，会把后面的毛玻璃全部重新计算）。 */}
                 <div
-                  className="absolute inset-0 z-[-8] opacity-60 dark:opacity-20 mix-blend-color transition-opacity duration-1000 transform-gpu"
+                  className="bg-drift absolute inset-[-45%] z-[-8] opacity-60 dark:opacity-20 mix-blend-color transition-opacity duration-1000 will-change-transform"
                   style={{
                     background: `linear-gradient(-45deg, ${siteConfig.themeColors.join(', ')})`,
-                    backgroundSize: '400% 400%',
-                    animation: 'gradientMove 15s ease infinite' // 🌟 全端保留渐变流动
+                    animation: 'gradientDrift 40s ease-in-out infinite alternate'
                   }}
                 ></div>
 
@@ -87,13 +93,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/30 dark:bg-purple-900/30 blur-[100px] rounded-full z-[-7] md:mix-blend-overlay"></div>
 
                 {/* 隐藏手机端高负载粒子特效 */}
-                <div className="hidden md:block absolute inset-0 w-full h-full">
+                <div className="fx-layer hidden md:block absolute inset-0 w-full h-full">
                   <BackgroundEffects />
                 </div>
               </div>
 
               {/* 隐藏手机端弹幕 */}
-              <div className="hidden md:block">
+              <div className="fx-layer hidden md:block">
                 <DanmakuBackground />
               </div>
 
@@ -114,16 +120,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               </div>
 
               {/* 隐藏手机端点击粒子 */}
-              <div className="hidden md:block">
+              <div className="fx-layer hidden md:block">
                 <ClickEffect />
               </div>
             </div>
 
             <style suppressHydrationWarning dangerouslySetInnerHTML={{ __html: `
-              @keyframes gradientMove { 
-                0% { background-position: 0% 50%; } 
-                50% { background-position: 100% 50%; } 
-                100% { background-position: 0% 50%; } 
+              @keyframes gradientDrift {
+                0%   { transform: rotate(0deg) scale(1); }
+                100% { transform: rotate(22deg) scale(1.25); }
               }
             `}} />
           </MusicProvider>

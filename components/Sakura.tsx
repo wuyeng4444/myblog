@@ -9,11 +9,14 @@ interface Petal {
   delay: number;
 }
 
+// 性能说明：花瓣数量 40 → 16，并去掉每片的 box-shadow（40 个阴影会拖慢绘制）。
+const PETAL_COUNT = 16;
+
 export default function Sakura() {
   const [petals, setPetals] = useState<Petal[]>([]);
 
   useEffect(() => {
-    const generated = Array.from({ length: 40 }).map((_, i) => ({
+    const generated = Array.from({ length: PETAL_COUNT }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       size: 8 + Math.random() * 12, // 8px 到 20px 大小的花瓣
@@ -37,7 +40,7 @@ export default function Sakura() {
       {petals.map(p => (
         <div
           key={p.id}
-          className="absolute top-0 bg-pink-300/70 shadow-[0_0_5px_rgba(255,182,193,0.6)]"
+          className="absolute top-0 bg-pink-300/70"
           style={{
             left: p.left,
             width: `${p.size}px`,
