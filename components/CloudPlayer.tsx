@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { useMusic } from './MusicProvider';
+import { siteConfig } from '../siteConfig';
 // 🌟 核心引入：Next.js 路由钩子
 import { useRouter } from 'next/navigation';
 
@@ -39,7 +40,7 @@ export default function CloudPlayer() {
     return (
       <div className="h-full w-full rounded-3xl bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl p-6 flex flex-col items-center justify-center transition-colors duration-700">
         <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <span className="text-slate-800 dark:text-white font-bold tracking-widest animate-pulse text-sm">CONNECTING...</span>
+        <span className="text-slate-800 dark:text-white font-bold tracking-widest animate-pulse text-sm">正在找一首歌…</span>
       </div>
     );
   }
@@ -50,8 +51,8 @@ export default function CloudPlayer() {
         <div className="w-16 h-16 mb-4 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center shadow-inner opacity-50">
           <svg className="w-8 h-8 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
         </div>
-        <span className="text-slate-500 dark:text-slate-400 font-bold tracking-widest text-xs uppercase">No Music Available</span>
-        <span className="text-[10px] text-slate-400 mt-1">请检查播放列表或网络连接</span>
+        <span className="text-slate-600 dark:text-slate-300 font-bold text-sm">{siteConfig.cloudMusicIds.length === 0 ? '今天先安静地读一会儿' : '音乐暂时没有抵达'}</span>
+        <span className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center leading-relaxed">{siteConfig.cloudMusicIds.length === 0 ? '歌单还在整理，文字已经在这里了。' : '暂时无法加载歌曲，稍后再来听听吧。'}</span>
       </div>
     );
   }

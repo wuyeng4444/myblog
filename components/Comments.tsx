@@ -11,9 +11,10 @@ import { siteConfig } from '../siteConfig'; // 如果路径报错，请检查层
 export default function Comments() {
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const commentsEnabled = Boolean(siteConfig.gitalkConfig.clientID && siteConfig.gitalkConfig.clientSecret && siteConfig.gitalkConfig.repo && siteConfig.gitalkConfig.owner);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!commentsEnabled || !containerRef.current) return;
 
     // 清空之前的评论区（防止 Next.js 路由切换时重复渲染）
     containerRef.current.innerHTML = '';
@@ -42,7 +43,11 @@ export default function Comments() {
       window.history.replaceState({}, document.title, url.toString());
     }
 
-  }, [pathname]);
+  }, [pathname, commentsEnabled]);
+
+  if (!commentsEnabled) {
+    return <p className="mt-12 border-t border-slate-200/50 dark:border-slate-700/50 pt-6 text-center text-sm text-slate-500 dark:text-slate-400">评论区暂未开放，谢谢你读到这里。</p>;
+  }
 
   return (
     <div className="w-full mt-16 relative">

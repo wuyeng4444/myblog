@@ -26,7 +26,7 @@ export const projectsData: Project[] = [
     "id": "proj_myblog",
     "name": "无影の藏身处",
     "githubUrl": "https://github.com/wuyeng4444/myblog",
-    "description": "就是这个博客本身。Next.js + Tailwind 的毛玻璃风格站点，文章、杂谈、说说、照片墙、友链都在这里。",
+    "description": "我的个人网站。放正在创作的作品、写下的文章和生活近况，也给朋友们留一个互相串门的入口。",
     "icon": "🪟",
     "tags": [
       "Next.js",
