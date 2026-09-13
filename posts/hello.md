@@ -1,13 +1,14 @@
 ---
-title: "先把门打开：这个站是什么"
-date: "2026-09-12T11:00:00+08:00"
+title: 先把门打开：这个站是什么
+date: 2026-09-12T03:00:00Z
+description: 折腾了半天，总算把博客搭起来了。说几句开场话。
+order: 0
 draft: false
-description: "折腾了半天，总算把博客搭起来了。说几句开场话。"
-cover: "/default-cover.jpg"
-tags: ["随笔", "开站"]
-mood: 平静
+cover: /default-cover.jpg
+tags:
+  - 随笔
+  - 开站
 ---
-
 ## 这里是什么地方
 
 一个属于我自己的角落。
