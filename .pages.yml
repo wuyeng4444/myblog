@@ -64,7 +64,13 @@ content:
       order: desc
     fields:
       - { name: title, label: 标题或章节名, type: string, required: true }
-      - { name: date, label: 日期, type: date, required: true }
+      - name: date
+        label: 日期
+        type: date
+        required: true
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
       - { name: description, label: 简介, type: text }
       - { name: series, label: 所属作品（独立文章可留空）, type: string }
       - { name: order, label: 章节顺序, type: number, default: 0 }

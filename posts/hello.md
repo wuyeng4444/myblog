@@ -1,6 +1,7 @@
 ---
 title: "先把门打开：这个站是什么"
-date: "2026-09-12 11:00:00"
+date: "2026-09-12T11:00:00+08:00"
+draft: false
 description: "折腾了半天，总算把博客搭起来了。说几句开场话。"
 cover: "/default-cover.jpg"
 tags: ["随笔", "开站"]
