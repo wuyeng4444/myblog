@@ -25,7 +25,8 @@ jobs:
       - run: npm ci
       - run: node --experimental-strip-types scripts/validate-content.mjs
       - run: node scripts/prepare-pages.mjs
-      - run: node node_modules/next/dist/bin/next build .pages-build --webpack
+      - run: node ../node_modules/next/dist/bin/next build --webpack
+        working-directory: .pages-build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
