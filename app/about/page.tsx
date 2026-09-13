@@ -43,12 +43,14 @@ export default async function AboutPage() {
   const fullPath = path.join(process.cwd(), 'app', 'about', 'about.md');
   let contentHtml = "博主很懒，还没有写自我介绍哦...";
   let coverImage = "/gallery/cover.jpg";
+  let profile: { title?: string; subtitle?: string; avatar?: string } = {};
 
   try {
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     // 🌟 改为 let，以便进行文本预清洗
     let { data, content } = matter(fileContents);
     if (data.cover) coverImage = data.cover;
+    profile = { title: data.title, subtitle: data.subtitle, avatar: data.avatar };
 
     // ==========================================
     // 🌟 解析前物理清洗区
@@ -92,7 +94,15 @@ export default async function AboutPage() {
   }
 
   const posts = getDirActivities('posts', '文章', 'posts');
-  const moments = getDirActivities('moments', '说说', 'moments');
+  const momentsFile = path.join(process.cwd(), 'content', 'moments.json');
+  const savedMoments = JSON.parse(fs.readFileSync(momentsFile, 'utf8').replace(/^\uFEFF/, '')).moments;
+  const moments = savedMoments.map((moment: { id: string; content: string; date: string }) => ({
+    id: moment.id,
+    type: '说说' as const,
+    title: moment.content.split(/\r?\n/)[0],
+    date: moment.date,
+    url: '/moments',
+  }));
 
   const allActivities = [...posts, ...moments].sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -220,6 +230,7 @@ export default async function AboutPage() {
             <AboutClient
               contentHtml={contentHtml}
               coverImage={coverImage}
+              profile={profile}
               activities={allActivities}
             />
           </Suspense>

@@ -1,5 +1,7 @@
 ---
 title: 关于我
+subtitle: Hello World, I'm 无影
+avatar: /avatar.jpg
 date: '2026-09-12'
 tags: []
 mood: ''

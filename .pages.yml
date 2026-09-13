@@ -20,6 +20,21 @@ content:
           - { name: lead, label: 一句话介绍, type: text, required: true }
           - { name: introduction, label: 个人介绍, type: text, required: true }
           - { name: caption, label: 头像下方文字, type: string, required: true }
+  - name: about
+    label: 关于我
+    type: file
+    path: app/about/about.md
+    format: yaml-frontmatter
+    fields:
+      - { name: title, label: 页面标题, type: string, required: true }
+      - { name: subtitle, label: 标题下方文字, type: string }
+      - { name: avatar, label: 头像, type: image }
+      - { name: cover, label: 顶部封面, type: image }
+      - name: body
+        label: 自我介绍
+        type: rich-text
+        required: true
+        description: 研究动态根据已发布文章和说说自动生成，请到对应栏目管理。
   - name: moments
     label: 说说
     type: file

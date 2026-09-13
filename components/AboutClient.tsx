@@ -19,10 +19,12 @@ type ActivityRecord = {
 export default function AboutClient({
   contentHtml,
   coverImage,
+  profile = {},
   activities
 }: {
   contentHtml: string,
   coverImage: string,
+  profile?: { title?: string; subtitle?: string; avatar?: string },
   activities: ActivityRecord[]
 }) {
   const router = useRouter();
@@ -133,14 +135,14 @@ export default function AboutClient({
 
       <div className="px-5 sm:px-8 md:px-16 pb-10 md:pb-16 relative">
         <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white dark:border-slate-800 shadow-2xl overflow-hidden -mt-12 md:-mt-16 relative z-20 bg-white">
-          <img src={siteConfig.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+          <img src={profile.avatar || siteConfig.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
         </div>
 
         {/* 🌟 核心修复区：手机端排版优雅适配 */}
         <div className="mt-4 md:mt-6 mb-6 md:mb-8 relative flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-4">
           <div className="text-center md:text-left">
-            <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-1 md:mb-3 transition-colors duration-700">关于我</h1>
-            <p className="text-sm md:text-lg text-indigo-600 dark:text-indigo-400 font-bold tracking-widest uppercase transition-colors duration-700">Hello World, I'm {siteConfig.authorName}</p>
+            <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-1 md:mb-3 transition-colors duration-700">{profile.title || '关于我'}</h1>
+            <p className="text-sm md:text-lg text-indigo-600 dark:text-indigo-400 font-bold tracking-widest uppercase transition-colors duration-700">{profile.subtitle || `Hello World, I'm ${siteConfig.authorName}`}</p>
           </div>
 
           <div className="flex items-center w-full md:w-auto gap-1 bg-white/50 dark:bg-slate-900/50 p-1 md:p-1.5 rounded-xl md:rounded-2xl shadow-inner border border-white/40 dark:border-white/5">
