@@ -75,6 +75,7 @@ for (const component of ['Comments', 'MomentComments']) await writeFile(path.joi
 // Prefix public asset URLs; Next handles its own Link and script paths via basePath.
 const publicNames = (await readdir(path.join(root, 'public'))).map(name => name.replace(/[.*+?^\$\{\}()|[\]\\]/g, '\\$&')).join('|');
 const assets = new RegExp('(["\x27\x60(])/(?:' + publicNames + ')(?=[/"\x27\x60)?#])', 'g');
+const yamlAssets = new RegExp('^([ \\t]*(?:cover|avatar):[ \\t]*)/(?:' + publicNames + ')(?=[/\\s?#]|$)', 'gm');
 async function prefixAssets(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     if (['public', 'node_modules', '.next', 'out'].includes(entry.name)) continue;
@@ -82,7 +83,10 @@ async function prefixAssets(directory) {
     if (entry.isDirectory()) await prefixAssets(file);
     else if (/\.(tsx?|css|json|md)$/.test(entry.name)) {
       const source = await readFile(file, 'utf8');
-      await writeFile(file, source.replace(assets, match => match[0] + '/myblog' + match.slice(1)));
+      const prefixed = source.replace(assets, match => match[0] + '/myblog' + match.slice(1));
+      await writeFile(file, entry.name.endsWith('.md')
+        ? prefixed.replace(yamlAssets, (match, label) => label + '/myblog' + match.slice(label.length))
+        : prefixed);
     }
   }
 }
