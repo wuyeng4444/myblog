@@ -1,14 +1,27 @@
 // Create an isolated static build workspace; preserve the current server deployment.
-import { cp, mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
+import { cp, mkdir, readFile, writeFile, readdir, rm, lstat } from 'node:fs/promises';
+import matter from 'gray-matter';
 import path from 'node:path';
 const root = process.cwd();
 const destination = path.join(root, '.pages-build');
+if (path.resolve(destination) !== path.resolve(root, '.pages-build')) throw new Error('Unsafe build path');
+const previous = await lstat(destination).catch(error => { if (error.code === 'ENOENT') return null; throw error; });
+if (previous?.isSymbolicLink()) throw new Error('Build directory must not be a link');
+if (previous) await rm(destination, { recursive: true });
 await mkdir(destination, { recursive: true });
 const excluded = new Set(['app/api', 'app/admin', 'app/d']);
 for (const entry of ['app', 'components', 'lib', 'data', 'posts', 'moments', 'content', 'public', 'siteConfig.ts', 'package.json', 'package-lock.json', 'tsconfig.json', 'postcss.config.mjs']) {
   await cp(path.join(root, entry), path.join(destination, entry), {
     recursive: true,
-    filter: source => !excluded.has(path.relative(root, source).split(path.sep).join('/')),
+    filter: async source => {
+      const relative = path.relative(root, source).split(path.sep).join('/');
+      if (excluded.has(relative)) return false;
+      if (relative.startsWith('posts/') && relative.endsWith('.md')) {
+        const { data } = matter(await readFile(source, 'utf8'));
+        if (data.draft === true) return false;
+      }
+      return true;
+    },
   });
 }
 await writeFile(path.join(destination, 'next.config.ts'), `import type { NextConfig } from 'next';
@@ -53,6 +66,10 @@ export default function WorksBoard() { const works: Work[] = snapshot.works; ret
 `);
 await mkdir(path.join(destination, 'app/admin'), { recursive: true });
 await cp(path.join(root, 'scripts/pages-admin.tsx'), path.join(destination, 'app/admin/page.tsx'));
+await mkdir(path.join(destination, 'app/writing'), { recursive: true });
+await cp(path.join(root, 'scripts/pages-writing.tsx'), path.join(destination, 'app/writing/page.tsx'));
+const worksBoardPath = path.join(destination, 'app/works/WorksBoard.tsx');
+await writeFile(worksBoardPath, (await readFile(worksBoardPath, 'utf8')).replace('<h2>作品与资料</h2>', '<h2>作品与资料</h2><div className="work-link-card"><h3>文本作品</h3><p>阅读我的文章、故事与章节。</p><Link className="personal-primary" href="/writing/">开始阅读 →</Link></div>'));
 // Optional comment services are unavailable without the original API proxy.
 for (const component of ['Comments', 'MomentComments']) await writeFile(path.join(destination, 'components', component + '.tsx'), `export default function ${component}(_props: any) { return <p className="personal-subtitle">评论暂未开放。</p>; }`);
 // Prefix public asset URLs; Next handles its own Link and script paths via basePath.
