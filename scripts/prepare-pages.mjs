@@ -68,8 +68,6 @@ await mkdir(path.join(destination, 'app/admin'), { recursive: true });
 await cp(path.join(root, 'scripts/pages-admin.tsx'), path.join(destination, 'app/admin/page.tsx'));
 await mkdir(path.join(destination, 'app/writing'), { recursive: true });
 await cp(path.join(root, 'scripts/pages-writing.tsx'), path.join(destination, 'app/writing/page.tsx'));
-const worksBoardPath = path.join(destination, 'app/works/WorksBoard.tsx');
-await writeFile(worksBoardPath, (await readFile(worksBoardPath, 'utf8')).replace('<h2>作品与资料</h2>', '<h2>作品与资料</h2><div className="work-link-card"><h3>文本作品</h3><p>阅读我的文章、故事与章节。</p><Link className="personal-primary" href="/writing/">开始阅读 →</Link></div>'));
 // Optional comment services are unavailable without the original API proxy.
 for (const component of ['Comments', 'MomentComments']) await writeFile(path.join(destination, 'components', component + '.tsx'), `export default function ${component}(_props: any) { return <p className="personal-subtitle">评论暂未开放。</p>; }`);
 // Prefix public asset URLs; Next handles its own Link and script paths via basePath.
